@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/.github/" />
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/docker-publish.yml" />
+    <File Path=".github/workflows/pr-check.yml" />
+  </Folder>
+  <Folder Name="/Solution Files/">
+    <File Path=".gitignore" />
+    <File Path="docker-compose.yml" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/Rafatz.SumUpReceiptForwarder.Worker/Rafatz.SumUpReceiptForwarder.Worker.csproj" />
+  <Project Path="tests/Rafatz.SumUpReceiptForwarder.Worker.Tests/Rafatz.SumUpReceiptForwarder.Worker.Tests.csproj" />
+</Solution>
