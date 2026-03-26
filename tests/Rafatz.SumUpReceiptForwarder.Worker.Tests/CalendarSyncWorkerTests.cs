@@ -17,7 +17,7 @@ public class SumUpReceiptForwarderWorkerTests
         _optionsMock = _fixture.Freeze<Mock<IOptions<SumUpReceiptForwarderSettings>>>();
 
         _settings = _fixture.Build<SumUpReceiptForwarderSettings>()
-            .With(x => x.SyncIntervalMinutes, 60)
+            .With(x => x.WorkerDelay, 60)
             .Create();
 
         _optionsMock.Setup(x => x.Value).Returns(_settings);

@@ -15,8 +15,8 @@ public class SumUpReceiptForwarderWorker(
         while (!stoppingToken.IsCancellationRequested)
         {
 
-            _logger.LogInformation("Waiting for {Minutes} minutes until next sync cycle", _settings.SyncIntervalMinutes);
-            await Task.Delay(TimeSpan.FromMinutes(_settings.SyncIntervalMinutes), stoppingToken);
+            _logger.LogInformation("Waiting for {Minutes} minutes until next sync cycle", _settings.WorkerDelay);
+            await Task.Delay(TimeSpan.FromMinutes(_settings.WorkerDelay), stoppingToken);
         }
 
         _logger.LogInformation("SumUpReceiptForwarder worker stopped");

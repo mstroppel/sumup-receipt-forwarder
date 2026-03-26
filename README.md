@@ -18,7 +18,7 @@ https://sales-receipt.sumup.com/pos/public/v1/{account-id}/receipt/{receipt-guid
 ```yaml
 
 services:
-  calendar-sync:
+  sumup-receipt-forwarder:
     image: ghcr.io/mstroppel/sumup-receipt-forwarder:latest
     restart: unless-stopped
     environment:

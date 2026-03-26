@@ -18,5 +18,5 @@ RUN dotnet publish "./Rafatz.SumUpReceiptForwarder.Worker.csproj" -c $BUILD_CONF
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENV SYNC_INTERVAL_MINUTES=15
+ENV WORKER_DELAY=15
 ENTRYPOINT ["dotnet", "Rafatz.SumUpReceiptForwarder.Worker.dll"]

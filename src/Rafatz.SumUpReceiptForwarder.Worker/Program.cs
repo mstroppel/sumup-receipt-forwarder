@@ -12,7 +12,7 @@ builder.Services.AddSingleton<IOptions<SumUpReceiptForwarderSettings>>(sp =>
     var config = sp.GetRequiredService<IConfiguration>();
     var settings = new SumUpReceiptForwarderSettings
     {
-        SyncIntervalMinutes = config.GetValueOrThrow<int>("SYNC_INTERVAL_MINUTES"),
+        WorkerDelay = config.GetValueOrThrow<int>("WORKER_DELAY"),
     };
     return Options.Create(settings);
 });

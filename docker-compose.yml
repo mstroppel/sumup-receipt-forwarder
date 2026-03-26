@@ -1,6 +1,6 @@
 services:
-  calendar-sync:
+  sumup-receipt-forwarder:
     image: ghcr.io/mstroppel/sumup-receipt-forwarder:latest
     restart: unless-stopped
     environment:
-      - SYNC_INTERVAL_MINUTES=15
+      - WORKER_DELAY=15
