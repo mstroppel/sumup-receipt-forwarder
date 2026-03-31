@@ -1,6 +1,8 @@
+using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 using Rafatz.SumUpReceiptForwarder;
 using Rafatz.SumUpReceiptForwarder.Extensions;
+using Rafatz.SumUpReceiptForwarder.Services;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -25,6 +27,22 @@ builder.Services.AddSingleton<IOptions<SumUpReceiptForwarderSettings>>(sp =>
     };
     return Options.Create(settings);
 });
+
+builder.Services.AddHttpClient(SumUpApiClient.ApiHttpClientName, (sp, client) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var apiKey = config.GetValueOrThrow<string>("SUMUP_API_KEY");
+    client.BaseAddress = new Uri("https://api.sumup.com/");
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+
+builder.Services.AddHttpClient(SumUpApiClient.ReceiptHttpClientName, client =>
+{
+    client.BaseAddress = new Uri("https://sales-receipt.sumup.com/");
+});
+
+builder.Services.AddSingleton<ISumUpApiClient, SumUpApiClient>();
 
 builder.Services.AddHostedService<SumUpReceiptForwarderWorker>();
 

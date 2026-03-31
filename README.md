@@ -68,18 +68,18 @@ Parameters:
 
 ### Phase 1: Configuration and Settings
 
-- [ ] Extend `SumUpReceiptForwarderSettings` with all required properties (SumUp account ID, API key, SMTP host/port/username/password/TLS, sender email, recipient email).
-- [ ] Update `Program.cs` to read all new environment variables and register the settings.
-- [ ] Update `Dockerfile` and `docker-compose.yml` with the new environment variables.
+- [x] Extend `SumUpReceiptForwarderSettings` with all required properties (SumUp account ID, API key, SMTP host/port/username/password/TLS, sender email, recipient email).
+- [x] Update `Program.cs` to read all new environment variables and register the settings.
+- [x] Update `Dockerfile` and `docker-compose.yml` with the new environment variables.
 
 ### Phase 2: SumUp API Client
 
-- [ ] Add `HttpClient` / `IHttpClientFactory` registration in `Program.cs`.
-- [ ] Create `ISumUpApiClient` interface and `SumUpApiClient` implementation.
-- [ ] Implement authentication against the SumUp API (API key / OAuth2).
-- [ ] Implement transaction listing (fetch recent transactions for the configured account).
-- [ ] Implement receipt PDF download from `https://sales-receipt.sumup.com/pos/public/v1/{account-id}/receipt/{receipt-guid}?format=pdf`.
-- [ ] Add response models / DTOs for SumUp API responses.
+- [x] Add `HttpClient` / `IHttpClientFactory` registration in `Program.cs`.
+- [x] Create `ISumUpApiClient` interface and `SumUpApiClient` implementation.
+- [x] Implement authentication against the SumUp API (API key / OAuth2).
+- [x] Implement transaction listing (fetch recent transactions for the configured account).
+- [x] Implement receipt PDF download from `https://sales-receipt.sumup.com/pos/public/v1/{account-id}/receipt/{receipt-guid}?format=pdf`.
+- [x] Add response models / DTOs for SumUp API responses.
 
 ### Phase 3: Email Forwarding Service
 
