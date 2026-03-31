@@ -56,7 +56,7 @@ public class SumUpReceiptForwarderWorker(
         {
             if (stoppingToken.IsCancellationRequested) break;
 
-            var receiptId = transaction.TransactionId ?? transaction.Id;
+            var receiptId = ExtractReceiptId(transaction);
             if (string.IsNullOrWhiteSpace(receiptId))
             {
                 _logger.LogWarning("Transaction has no usable ID, skipping. TransactionCode: {TransactionCode}",
@@ -106,5 +106,20 @@ public class SumUpReceiptForwarderWorker(
         _logger.LogInformation(
             "Receipt processing cycle complete. Forwarded: {Forwarded}, Skipped: {Skipped}, Failed: {Failed}",
             forwarded, skipped, failed);
+    }
+
+    private static string? ExtractReceiptId(SumUp.TransactionHistory transaction)
+    {
+        if (!string.IsNullOrWhiteSpace(transaction.ClientTransactionId))
+        {
+            var parts = transaction.ClientTransactionId.Split(':');
+            // Format: urn:sumup:pos:sale:ACCOUNT_ID:UUID:TIMESTAMP
+            if (parts is { Length: >= 6 } && parts[0] == "urn" && parts[1] == "sumup" && parts[2] == "pos" && parts[3] == "sale")
+            {
+                return parts[5];
+            }
+        }
+
+        return transaction.TransactionId ?? transaction.Id;
     }
 }

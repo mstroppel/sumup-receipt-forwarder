@@ -281,4 +281,42 @@ public class SumUpReceiptForwarderWorkerTests
         _receiptTrackerMock.Verify(x => x.IsAlreadySent("fallback-id"), Times.Once);
         _apiClientMock.Verify(x => x.DownloadReceiptPdfAsync("fallback-id", It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task ExecuteAsync_ExtractsIdFromClientTransactionId()
+    {
+        // Arrange
+        var transactions = new List<TransactionHistory>
+        {
+            new()
+            {
+                Id = "wrong-id",
+                TransactionId = "also-wrong-id",
+                ClientTransactionId = "urn:sumup:pos:sale:MFQWVP79:2d3f18f7-79f9-4056-9976-6e326b0ab36d:1774878792483",
+                TransactionCode = "TX001",
+                Amount = 5f,
+                Currency = Currency.Eur
+            },
+        };
+
+        var expectedId = "2d3f18f7-79f9-4056-9976-6e326b0ab36d";
+
+        _apiClientMock
+            .Setup(x => x.ListTransactionsAsync(It.IsAny<DateTimeOffset?>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(transactions);
+
+        _receiptTrackerMock.Setup(x => x.IsAlreadySent(It.IsAny<string>())).Returns(false);
+
+        _apiClientMock
+            .Setup(x => x.DownloadReceiptPdfAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([0x25, 0x50, 0x44, 0x46]);
+
+        // Act
+        await RunWorkerOneCycleAsync();
+
+        // Assert
+        _receiptTrackerMock.Verify(x => x.IsAlreadySent(expectedId), Times.Once);
+        _apiClientMock.Verify(x => x.DownloadReceiptPdfAsync(expectedId, It.IsAny<CancellationToken>()), Times.Once);
+        _receiptTrackerMock.Verify(x => x.MarkAsSentAsync(expectedId, It.IsAny<CancellationToken>()), Times.Once);
+    }
 }
