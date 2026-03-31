@@ -13,6 +13,15 @@ builder.Services.AddSingleton<IOptions<SumUpReceiptForwarderSettings>>(sp =>
     var settings = new SumUpReceiptForwarderSettings
     {
         WorkerDelay = config.GetValueOrThrow<int>("WORKER_DELAY"),
+        SumUpAccountId = config.GetValueOrThrow<string>("SUMUP_ACCOUNT_ID"),
+        SumUpApiKey = config.GetValueOrThrow<string>("SUMUP_API_KEY"),
+        SmtpHost = config.GetValueOrThrow<string>("SMTP_HOST"),
+        SmtpPort = config.GetValueOrThrow<int>("SMTP_PORT"),
+        SmtpUsername = config.GetValueOrThrow<string>("SMTP_USERNAME"),
+        SmtpPassword = config.GetValueOrThrow<string>("SMTP_PASSWORD"),
+        SmtpUseTls = config.GetValueOrThrow<bool>("SMTP_USE_TLS"),
+        SenderEmail = config.GetValueOrThrow<string>("SENDER_EMAIL"),
+        RecipientEmail = config.GetValueOrThrow<string>("RECIPIENT_EMAIL"),
     };
     return Options.Create(settings);
 });
