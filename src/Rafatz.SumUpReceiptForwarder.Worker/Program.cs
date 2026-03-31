@@ -1,8 +1,8 @@
-using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 using Rafatz.SumUpReceiptForwarder;
 using Rafatz.SumUpReceiptForwarder.Extensions;
 using Rafatz.SumUpReceiptForwarder.Services;
+using SumUp;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -28,13 +28,11 @@ builder.Services.AddSingleton<IOptions<SumUpReceiptForwarderSettings>>(sp =>
     return Options.Create(settings);
 });
 
-builder.Services.AddHttpClient(SumUpApiClient.ApiHttpClientName, (sp, client) =>
+builder.Services.AddSingleton(_ =>
 {
-    var config = sp.GetRequiredService<IConfiguration>();
+    var config = builder.Configuration;
     var apiKey = config.GetValueOrThrow<string>("SUMUP_API_KEY");
-    client.BaseAddress = new Uri("https://api.sumup.com/");
-    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    return new SumUpClient(new SumUpClientOptions { AccessToken = apiKey });
 });
 
 builder.Services.AddHttpClient(SumUpApiClient.ReceiptHttpClientName, client =>
@@ -43,6 +41,8 @@ builder.Services.AddHttpClient(SumUpApiClient.ReceiptHttpClientName, client =>
 });
 
 builder.Services.AddSingleton<ISumUpApiClient, SumUpApiClient>();
+builder.Services.AddSingleton<IEmailService, EmailService>();
+builder.Services.AddSingleton<IReceiptTracker, FileReceiptTracker>();
 
 builder.Services.AddHostedService<SumUpReceiptForwarderWorker>();
 

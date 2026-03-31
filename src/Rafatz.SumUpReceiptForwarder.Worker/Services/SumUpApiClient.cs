@@ -1,50 +1,41 @@
-using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
-using Rafatz.SumUpReceiptForwarder.Models;
+using SumUp;
 
 namespace Rafatz.SumUpReceiptForwarder.Services;
 
-/// <summary>Client for interacting with the SumUp API.</summary>
+/// <summary>Client for interacting with the SumUp API using the official SDK.</summary>
 public class SumUpApiClient(
+    SumUpClient sumUpClient,
     IHttpClientFactory httpClientFactory,
     IOptions<SumUpReceiptForwarderSettings> options,
     ILogger<SumUpApiClient> logger) : ISumUpApiClient
 {
-    public const string ApiHttpClientName = "SumUpApi";
     public const string ReceiptHttpClientName = "SumUpReceipt";
 
     private readonly SumUpReceiptForwarderSettings _settings = options.Value;
 
     /// <inheritdoc />
-    public async Task<TransactionHistoryResponse> ListTransactionsAsync(
-        DateTime? oldestTime = null,
+    public async Task<IReadOnlyList<TransactionHistory>> ListTransactionsAsync(
+        DateTimeOffset? oldestTime = null,
         int limit = 50,
         CancellationToken cancellationToken = default)
     {
-        var client = httpClientFactory.CreateClient(ApiHttpClientName);
+        logger.LogDebug("Fetching up to {Limit} transactions from SumUp API (oldest: {OldestTime})",
+            limit, oldestTime);
 
-        var url = $"v2.1/merchants/{_settings.SumUpAccountId}/transactions/history?limit={limit}&order=descending&statuses[]=SUCCESSFUL";
+        var response = await sumUpClient.Transactions.ListAsync(
+            merchantCode: _settings.SumUpAccountId,
+            statuses: ["SUCCESSFUL"],
+            oldestTime: oldestTime,
+            limit: limit,
+            order: "descending",
+            cancellationToken: cancellationToken);
 
-        if (oldestTime.HasValue)
-        {
-            url += $"&oldest_time={oldestTime.Value:yyyy-MM-ddTHH:mm:ss.fffZ}";
-        }
+        var items = response.Data?.Items?.ToList() ?? [];
 
-        logger.LogDebug("Fetching transactions from {Url}", url);
+        logger.LogInformation("Fetched {Count} transactions from SumUp API", items.Count);
 
-        var response = await client.GetAsync(url, cancellationToken);
-        response.EnsureSuccessStatusCode();
-
-        var result = await response.Content.ReadFromJsonAsync<TransactionHistoryResponse>(cancellationToken);
-
-        if (result is null)
-        {
-            throw new InvalidOperationException("Failed to deserialize transaction history response from SumUp API.");
-        }
-
-        logger.LogInformation("Fetched {Count} transactions from SumUp API", result.Items.Count);
-
-        return result;
+        return items;
     }
 
     /// <inheritdoc />

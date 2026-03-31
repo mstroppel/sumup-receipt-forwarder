@@ -1,4 +1,4 @@
-using Rafatz.SumUpReceiptForwarder.Models;
+using SumUp;
 
 namespace Rafatz.SumUpReceiptForwarder.Services;
 
@@ -11,9 +11,9 @@ public interface ISumUpApiClient
     /// <param name="oldestTime">Only return transactions created at or after this timestamp.</param>
     /// <param name="limit">Maximum number of results per page.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Transaction history response with items and pagination links.</returns>
-    Task<TransactionHistoryResponse> ListTransactionsAsync(
-        DateTime? oldestTime = null,
+    /// <returns>Transaction history items from the SumUp SDK.</returns>
+    Task<IReadOnlyList<TransactionHistory>> ListTransactionsAsync(
+        DateTimeOffset? oldestTime = null,
         int limit = 50,
         CancellationToken cancellationToken = default);
 

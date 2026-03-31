@@ -53,4 +53,18 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
-.idea
+# IDE
+.idea/
+.vs/
+*.user
+
+# Environment files
+.env
+.env.*
+
+# Application data
+sent-receipts.txt
+
+# Scaffolding artifacts (removed)
+template/
+nupkg/

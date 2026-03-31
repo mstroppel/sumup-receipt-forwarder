@@ -61,7 +61,7 @@ Parameters:
 
 - The worker stores already-sent receipt IDs locally so receipts are not forwarded twice.
 - Logging is done to the console in JSON format so issues can be seen in container log aggregators (e.g. Dozzle can create alerts).
-- The worker uses `IHttpClientFactory` for resilient HTTP communication with the SumUp API.
+- The worker uses the official SumUp .NET SDK for API communication and `IHttpClientFactory` for receipt PDF downloads.
 - Receipts are downloaded as PDF attachments and sent via SMTP using MailKit.
 
 ## Implementation Plan
@@ -83,39 +83,39 @@ Parameters:
 
 ### Phase 3: Email Forwarding Service
 
-- [ ] Add MailKit NuGet dependency.
-- [ ] Create `IEmailService` interface and `EmailService` implementation.
-- [ ] Implement SMTP connection with TLS support.
-- [ ] Implement sending emails with PDF receipt attachments.
+- [x] Add MailKit NuGet dependency.
+- [x] Create `IEmailService` interface and `EmailService` implementation.
+- [x] Implement SMTP connection with TLS support.
+- [x] Implement sending emails with PDF receipt attachments.
 
 ### Phase 4: Receipt Tracking (Deduplication)
 
-- [ ] Create `IReceiptTracker` interface and `FileReceiptTracker` implementation.
-- [ ] Implement file-based persistence of already-forwarded receipt IDs (JSON or plain text in a Docker volume).
-- [ ] Add methods: `IsAlreadySent(string receiptId)` and `MarkAsSent(string receiptId)`.
+- [x] Create `IReceiptTracker` interface and `FileReceiptTracker` implementation.
+- [x] Implement file-based persistence of already-forwarded receipt IDs (JSON or plain text in a Docker volume).
+- [x] Add methods: `IsAlreadySent(string receiptId)` and `MarkAsSent(string receiptId)`.
 
 ### Phase 5: Worker Integration
 
-- [ ] Wire all services into the DI container in `Program.cs`.
-- [ ] Implement the main worker loop in `SumUpReceiptForwarderWorker.ExecuteAsync`:
+- [x] Wire all services into the DI container in `Program.cs`.
+- [x] Implement the main worker loop in `SumUpReceiptForwarderWorker.ExecuteAsync`:
   1. Fetch recent transactions from SumUp API.
   2. Filter out already-forwarded receipts.
   3. Download PDF for each new receipt.
   4. Send email with PDF attachment.
   5. Mark receipt as sent.
-- [ ] Add error handling and retry logic (per-receipt failures should not stop the batch).
-- [ ] Add structured logging for each step (transaction count, receipts forwarded, errors).
+- [x] Add error handling and retry logic (per-receipt failures should not stop the batch).
+- [x] Add structured logging for each step (transaction count, receipts forwarded, errors).
 
 ### Phase 6: Testing
 
-- [ ] Rename `CalendarSyncWorkerTests.cs` to `SumUpReceiptForwarderWorkerTests.cs`.
+- [x] Rename `CalendarSyncWorkerTests.cs` to `SumUpReceiptForwarderWorkerTests.cs`.
 - [ ] Write unit tests for `SumUpApiClient` (mocked HTTP responses).
 - [ ] Write unit tests for `EmailService` (mocked SMTP).
-- [ ] Write unit tests for `FileReceiptTracker`.
-- [ ] Write integration tests for the worker loop logic.
+- [x] Write unit tests for `FileReceiptTracker`.
+- [x] Write integration tests for the worker loop logic.
 
 ### Phase 7: Cleanup
 
-- [ ] Remove the `template/` directory and `nupkg/` folder (leftover scaffolding artifacts).
-- [ ] Review `.gitignore` for completeness.
+- [x] Remove the `template/` directory and `nupkg/` folder (leftover scaffolding artifacts).
+- [x] Review `.gitignore` for completeness.
 
