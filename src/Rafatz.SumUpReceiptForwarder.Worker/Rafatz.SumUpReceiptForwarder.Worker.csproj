@@ -9,11 +9,24 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="DotNetEnv" Version="3.1.1" />
         <PackageReference Include="MailKit" Version="4.15.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.3" />
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.3" />
         <PackageReference Include="SumUp" Version="0.0.10" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update=".env" Condition="Exists('.env')">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 </Project>

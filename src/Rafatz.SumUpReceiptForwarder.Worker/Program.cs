@@ -4,6 +4,11 @@ using Rafatz.SumUpReceiptForwarder.Extensions;
 using Rafatz.SumUpReceiptForwarder.Services;
 using SumUp;
 
+if (File.Exists(".env"))
+{
+    DotNetEnv.Env.Load();
+}
+
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Logging.ClearProviders();
