@@ -4,3 +4,17 @@ services:
     restart: unless-stopped
     environment:
       - WORKER_DELAY=15
+      - SUMUP_ACCOUNT_ID=ABC123456789
+      - SUMUP_API_KEY=secret-key
+      - SMTP_HOST=mail.example.com
+      - SMTP_PORT=587
+      - SMTP_USERNAME=user
+      - SMTP_PASSWORD=password
+      - SMTP_USE_TLS=true
+      - SENDER_EMAIL=sender@example.com
+      - RECIPIENT_EMAIL=receiver@example.com
+    volumes:
+      - receipt-data:/app/data
+
+volumes:
+  receipt-data:
