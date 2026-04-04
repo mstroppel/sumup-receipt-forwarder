@@ -57,6 +57,21 @@ Parameters:
 | `SENDER_EMAIL`     | Email address used as the sender         | required |
 | `RECIPIENT_EMAIL`  | Destination email for receipt forwarding | required |
 
+## Env File
+
+```dotenv
+WORKER_DELAY=3600
+SUMUP_ACCOUNT_ID=your-account-id
+SUMUP_API_KEY=your-api-key
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USERNAME=your-username
+SMTP_PASSWORD=your-password
+SMTP_USE_TLS=true
+SENDER_EMAIL=sender@example.com
+RECIPIENT_EMAIL=recipient@example.com
+```
+
 ## Implementation Details
 
 - The worker stores already-sent receipt IDs locally so receipts are not forwarded twice.
