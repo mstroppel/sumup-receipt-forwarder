@@ -79,3 +79,7 @@ RECIPIENT_EMAIL=recipient@example.com
   create alerts).
 - The worker uses the official SumUp .NET SDK for API communication and `IHttpClientFactory` for receipt PDF downloads.
 - Receipts are downloaded as PDF attachments and sent via SMTP using MailKit.
+
+## Troubleshooting
+
+Ensure the UID 1654 has write access to `/app/data` when mounted to the host file system.
