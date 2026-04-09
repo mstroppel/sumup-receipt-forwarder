@@ -35,7 +35,8 @@ public class SumUpReceiptForwarderWorkerTests
             SmtpPassword = "pass",
             SmtpUseTls = false,
             SenderEmail = "sender@test.com",
-            RecipientEmail = "recipient@test.com",
+            RecipientEmailCash = "recipient-cash@test.com",
+            RecipientEmailCard = "recipient-card@test.com",
         };
 
         _optionsMock.Setup(x => x.Value).Returns(_settings);
@@ -88,6 +89,7 @@ public class SumUpReceiptForwarderWorkerTests
             x => x.SendReceiptAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
                 It.IsAny<byte[]>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
@@ -126,6 +128,7 @@ public class SumUpReceiptForwarderWorkerTests
         // Assert - only the second receipt should be forwarded
         _emailServiceMock.Verify(
             x => x.SendReceiptAsync(
+                It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<byte[]>(),
@@ -172,6 +175,7 @@ public class SumUpReceiptForwarderWorkerTests
             x => x.SendReceiptAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
                 It.IsAny<byte[]>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
@@ -199,10 +203,56 @@ public class SumUpReceiptForwarderWorkerTests
             x => x.SendReceiptAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
                 It.IsAny<byte[]>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_SendsCashAndCardToDifferentRecipients()
+    {
+        // Arrange
+        var transactions = new List<TransactionHistory>
+        {
+            new() { Id = "id-1", TransactionId = "tid-1", TransactionCode = "TX001", Amount = 10.50f, Currency = Currency.Eur, PaymentType = PaymentType.Cash },
+            new() { Id = "id-2", TransactionId = "tid-2", TransactionCode = "TX002", Amount = 25.00f, Currency = Currency.Eur, PaymentType = PaymentType.Pos},
+        };
+
+        _apiClientMock
+            .Setup(x => x.ListTransactionsAsync(It.IsAny<DateTimeOffset?>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(transactions);
+
+        _receiptTrackerMock.Setup(x => x.IsAlreadySent(It.IsAny<string>())).Returns(false);
+
+        _apiClientMock
+            .Setup(x => x.DownloadReceiptPdfAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([0x25, 0x50, 0x44, 0x46]);
+
+        // Act
+        await RunWorkerOneCycleAsync();
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendReceiptAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                "recipient-cash@test.com",
+                It.IsAny<byte[]>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _emailServiceMock.Verify(
+            x => x.SendReceiptAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                "recipient-card@test.com",
+                It.IsAny<byte[]>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

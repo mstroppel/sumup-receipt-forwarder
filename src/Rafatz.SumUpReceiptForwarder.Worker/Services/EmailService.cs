@@ -16,13 +16,14 @@ public class EmailService(
     public async Task SendReceiptAsync(
         string subject,
         string body,
+        string recipientEmail,
         byte[] pdfBytes,
         string pdfFileName,
         CancellationToken cancellationToken = default)
     {
         var message = new MimeMessage();
         message.From.Add(MailboxAddress.Parse(_settings.SenderEmail));
-        message.To.Add(MailboxAddress.Parse(_settings.RecipientEmail));
+        message.To.Add(MailboxAddress.Parse(recipientEmail));
         message.Subject = subject;
 
         var bodyBuilder = new BodyBuilder { TextBody = body };
@@ -44,6 +45,6 @@ public class EmailService(
         await client.DisconnectAsync(quit: true, cancellationToken);
 
         logger.LogInformation("Sent receipt email to {Recipient} with attachment {FileName}",
-            _settings.RecipientEmail, pdfFileName);
+            recipientEmail, pdfFileName);
     }
 }

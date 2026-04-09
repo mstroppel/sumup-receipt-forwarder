@@ -29,6 +29,9 @@ public class SumUpReceiptForwarderSettings
     /// <summary>Email address used as the sender.</summary>
     public required string SenderEmail { get; init; }
 
-    /// <summary>Destination email address where receipts are delivered.</summary>
-    public required string RecipientEmail { get; init; }
+    /// <summary>Destination email address for cash payments.</summary>
+    public required string RecipientEmailCash { get; init; }
+
+    /// <summary>Destination email address for card payments.</summary>
+    public required string RecipientEmailCard { get; init; }
 }
