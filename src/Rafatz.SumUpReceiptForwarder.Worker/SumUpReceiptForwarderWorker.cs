@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using Rafatz.SumUpReceiptForwarder.Services;
+using SumUp;
 
 namespace Rafatz.SumUpReceiptForwarder;
 
@@ -75,16 +76,12 @@ public class SumUpReceiptForwarderWorker(
             {
                 var pdfBytes = await _sumUpApiClient.DownloadReceiptPdfAsync(receiptId, stoppingToken);
 
-                var subject = $"SumUp Receipt - {transaction.TransactionCode} - {transaction.Amount} {transaction.Currency}";
-                var body = $"""
-                    Transaction Code: {transaction.TransactionCode}
-                    Amount: {transaction.Amount} {transaction.Currency}
-                    Date: {transaction.Timestamp}
-                    Status: {transaction.Status}
-                    Payment Type: {transaction.PaymentType}
-                    """;
+                var isCash = transaction.PaymentType is PaymentType.Cash;
+                var paymentType = isCash ? "Cash" : "Card";
+                var subject = $"SumUp Receipt - {paymentType} - {transaction.Amount} {transaction.Currency}";
+                var body = CreateBody(transaction, receiptId);
                 var fileName = $"receipt-{transaction.TransactionCode}.pdf";
-                var recipientEmail = ResolveRecipientEmail(transaction);
+                var recipientEmail = isCash ? _settings.RecipientEmailCash : _settings.RecipientEmailCard;
 
                 await _emailService.SendReceiptAsync(subject, body, recipientEmail, pdfBytes, fileName, stoppingToken);
                 await _receiptTracker.MarkAsSentAsync(receiptId, stoppingToken);
@@ -109,7 +106,19 @@ public class SumUpReceiptForwarderWorker(
             forwarded, skipped, failed);
     }
 
-    private static string? ExtractReceiptId(SumUp.TransactionHistory transaction)
+    private static string CreateBody(TransactionHistory transaction, string receiptId)
+    {
+        return $"""
+                Transaction Code: {transaction.TransactionCode}
+                Amount: {transaction.Amount} {transaction.Currency}
+                Date: {transaction.Timestamp}
+                Status: {transaction.Status}
+                Payment Type: {transaction.PaymentType}
+                Receipt Id: {receiptId}
+                """;
+    }
+
+    private static string? ExtractReceiptId(TransactionHistory transaction)
     {
         if (!string.IsNullOrWhiteSpace(transaction.ClientTransactionId))
         {
@@ -122,47 +131,5 @@ public class SumUpReceiptForwarderWorker(
         }
 
         return transaction.TransactionId ?? transaction.Id;
-    }
-
-    private string ResolveRecipientEmail(SumUp.TransactionHistory transaction)
-    {
-        var paymentType = transaction.PaymentType?.ToString();
-        var normalizedPaymentType = NormalizePaymentType(paymentType);
-
-        if (normalizedPaymentType.Contains("CASH", StringComparison.Ordinal))
-        {
-            return _settings.RecipientEmailCash;
-        }
-
-        if (string.IsNullOrWhiteSpace(normalizedPaymentType))
-        {
-            _logger.LogWarning(
-                "Missing payment type for transaction {TransactionCode}; defaulting to card recipient",
-                transaction.TransactionCode);
-        }
-        else
-        {
-            _logger.LogDebug(
-                "Routing transaction {TransactionCode} with payment type '{PaymentType}' to card recipient",
-                transaction.TransactionCode,
-                paymentType);
-        }
-
-        return _settings.RecipientEmailCard;
-    }
-
-    private static string NormalizePaymentType(string? paymentType)
-    {
-        if (string.IsNullOrWhiteSpace(paymentType))
-        {
-            return string.Empty;
-        }
-
-        return paymentType
-            .Trim()
-            .Replace("_", string.Empty, StringComparison.Ordinal)
-            .Replace("-", string.Empty, StringComparison.Ordinal)
-            .Replace(" ", string.Empty, StringComparison.Ordinal)
-            .ToUpperInvariant();
     }
 }
