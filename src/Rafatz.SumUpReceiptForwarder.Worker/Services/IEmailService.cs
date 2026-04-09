@@ -8,12 +8,14 @@ public interface IEmailService
     /// </summary>
     /// <param name="subject">Email subject line.</param>
     /// <param name="body">Plain-text email body.</param>
+    /// <param name="recipientEmail">Destination recipient email address.</param>
     /// <param name="pdfBytes">The PDF receipt content.</param>
     /// <param name="pdfFileName">File name for the PDF attachment.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     Task SendReceiptAsync(
         string subject,
         string body,
+        string recipientEmail,
         byte[] pdfBytes,
         string pdfFileName,
         CancellationToken cancellationToken = default);

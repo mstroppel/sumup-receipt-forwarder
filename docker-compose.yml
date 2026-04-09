@@ -12,7 +12,8 @@ services:
       - SMTP_PASSWORD=password
       - SMTP_USE_TLS=true
       - SENDER_EMAIL=sender@example.com
-      - RECIPIENT_EMAIL=receiver@example.com
+      - RECIPIENT_EMAIL_CASH=receiver-cash@example.com
+      - RECIPIENT_EMAIL_CARD=receiver-card@example.com
     volumes:
       - receipt-data:/app/data
 

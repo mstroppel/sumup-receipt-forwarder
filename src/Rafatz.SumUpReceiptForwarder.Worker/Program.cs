@@ -28,7 +28,8 @@ builder.Services.AddSingleton<IOptions<SumUpReceiptForwarderSettings>>(sp =>
         SmtpPassword = config.GetValueOrThrow<string>("SMTP_PASSWORD"),
         SmtpUseTls = config.GetValueOrThrow<bool>("SMTP_USE_TLS"),
         SenderEmail = config.GetValueOrThrow<string>("SENDER_EMAIL"),
-        RecipientEmail = config.GetValueOrThrow<string>("RECIPIENT_EMAIL"),
+        RecipientEmailCash = config.GetValueOrThrow<string>("RECIPIENT_EMAIL_CASH"),
+        RecipientEmailCard = config.GetValueOrThrow<string>("RECIPIENT_EMAIL_CARD"),
     };
     return Options.Create(settings);
 });

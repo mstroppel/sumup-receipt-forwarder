@@ -2,7 +2,7 @@
 
 SumUp Receipt Forwarder is a lightweight .NET worker service running inside a Docker container.
 It automatically retrieves transaction data from a connected SumUp account, downloads each transaction’s PDF receipt,
-and forwards them via SMTP to a specified email address.
+and forwards them via SMTP to dedicated recipient addresses for cash and card payments.
 
 Features and Configuration:
 
@@ -11,7 +11,7 @@ Features and Configuration:
     - API credentials
 - Execution interval: Defines how often the worker runs to check for new transactions.
 - SMTP settings: Configures the mail server used to send receipts.
-- Target email address: Destination address where receipts are delivered.
+- Target email addresses: Separate destination addresses for cash and card receipts.
 
 SumUp receipt URL
 
@@ -34,7 +34,8 @@ services:
       - SMTP_PASSWORD=your-password
       - SMTP_USE_TLS=true
       - SENDER_EMAIL=sender@example.com
-      - RECIPIENT_EMAIL=recipient@example.com
+      - RECIPIENT_EMAIL_CASH=recipient-cash@example.com
+      - RECIPIENT_EMAIL_CARD=recipient-card@example.com
     volumes:
       - receipt-data:/app/data
 
@@ -55,7 +56,8 @@ Parameters:
 | `SMTP_PASSWORD`    | SMTP authentication password             | required |
 | `SMTP_USE_TLS`     | Enable TLS for SMTP connection           | `true`   |
 | `SENDER_EMAIL`     | Email address used as the sender         | required |
-| `RECIPIENT_EMAIL`  | Destination email for receipt forwarding | required |
+| `RECIPIENT_EMAIL_CASH` | Destination email for cash payment receipts | required |
+| `RECIPIENT_EMAIL_CARD` | Destination email for card payment receipts | required |
 
 ## Env File
 
@@ -69,7 +71,8 @@ SMTP_USERNAME=your-username
 SMTP_PASSWORD=your-password
 SMTP_USE_TLS=true
 SENDER_EMAIL=sender@example.com
-RECIPIENT_EMAIL=recipient@example.com
+RECIPIENT_EMAIL_CASH=recipient-cash@example.com
+RECIPIENT_EMAIL_CARD=recipient-card@example.com
 ```
 
 ## Implementation Details

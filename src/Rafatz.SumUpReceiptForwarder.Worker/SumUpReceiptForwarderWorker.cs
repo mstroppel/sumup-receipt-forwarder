@@ -84,8 +84,9 @@ public class SumUpReceiptForwarderWorker(
                     Payment Type: {transaction.PaymentType}
                     """;
                 var fileName = $"receipt-{transaction.TransactionCode}.pdf";
+                var recipientEmail = ResolveRecipientEmail(transaction);
 
-                await _emailService.SendReceiptAsync(subject, body, pdfBytes, fileName, stoppingToken);
+                await _emailService.SendReceiptAsync(subject, body, recipientEmail, pdfBytes, fileName, stoppingToken);
                 await _receiptTracker.MarkAsSentAsync(receiptId, stoppingToken);
 
                 forwarded++;
@@ -121,5 +122,47 @@ public class SumUpReceiptForwarderWorker(
         }
 
         return transaction.TransactionId ?? transaction.Id;
+    }
+
+    private string ResolveRecipientEmail(SumUp.TransactionHistory transaction)
+    {
+        var paymentType = transaction.PaymentType?.ToString();
+        var normalizedPaymentType = NormalizePaymentType(paymentType);
+
+        if (normalizedPaymentType.Contains("CASH", StringComparison.Ordinal))
+        {
+            return _settings.RecipientEmailCash;
+        }
+
+        if (string.IsNullOrWhiteSpace(normalizedPaymentType))
+        {
+            _logger.LogWarning(
+                "Missing payment type for transaction {TransactionCode}; defaulting to card recipient",
+                transaction.TransactionCode);
+        }
+        else
+        {
+            _logger.LogDebug(
+                "Routing transaction {TransactionCode} with payment type '{PaymentType}' to card recipient",
+                transaction.TransactionCode,
+                paymentType);
+        }
+
+        return _settings.RecipientEmailCard;
+    }
+
+    private static string NormalizePaymentType(string? paymentType)
+    {
+        if (string.IsNullOrWhiteSpace(paymentType))
+        {
+            return string.Empty;
+        }
+
+        return paymentType
+            .Trim()
+            .Replace("_", string.Empty, StringComparison.Ordinal)
+            .Replace("-", string.Empty, StringComparison.Ordinal)
+            .Replace(" ", string.Empty, StringComparison.Ordinal)
+            .ToUpperInvariant();
     }
 }
