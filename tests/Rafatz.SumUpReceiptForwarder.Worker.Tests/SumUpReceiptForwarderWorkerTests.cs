@@ -216,8 +216,8 @@ public class SumUpReceiptForwarderWorkerTests
         // Arrange
         var transactions = new List<TransactionHistory>
         {
-            new() { Id = "id-1", TransactionId = "tid-1", TransactionCode = "TX001", Amount = 10.50f, Currency = Currency.Eur, PaymentType = ResolvePaymentTypeByKeyword("cash") },
-            new() { Id = "id-2", TransactionId = "tid-2", TransactionCode = "TX002", Amount = 25.00f, Currency = Currency.Eur, PaymentType = ResolveNonCashPaymentType() },
+            new() { Id = "id-1", TransactionId = "tid-1", TransactionCode = "TX001", Amount = 10.50f, Currency = Currency.Eur, PaymentType = PaymentType.Cash },
+            new() { Id = "id-2", TransactionId = "tid-2", TransactionCode = "TX002", Amount = 25.00f, Currency = Currency.Eur, PaymentType = PaymentType.Pos},
         };
 
         _apiClientMock
@@ -368,31 +368,5 @@ public class SumUpReceiptForwarderWorkerTests
         _receiptTrackerMock.Verify(x => x.IsAlreadySent(expectedId), Times.Once);
         _apiClientMock.Verify(x => x.DownloadReceiptPdfAsync(expectedId, It.IsAny<CancellationToken>()), Times.Once);
         _receiptTrackerMock.Verify(x => x.MarkAsSentAsync(expectedId, It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    private static PaymentType ResolvePaymentTypeByKeyword(string keyword)
-    {
-        foreach (var value in Enum.GetValues<PaymentType>())
-        {
-            if (value.ToString().Contains(keyword, StringComparison.OrdinalIgnoreCase))
-            {
-                return value;
-            }
-        }
-
-        throw new InvalidOperationException($"Unable to resolve SumUp payment type for keyword '{keyword}'.");
-    }
-
-    private static PaymentType ResolveNonCashPaymentType()
-    {
-        foreach (var value in Enum.GetValues<PaymentType>())
-        {
-            if (!value.ToString().Contains("cash", StringComparison.OrdinalIgnoreCase))
-            {
-                return value;
-            }
-        }
-
-        throw new InvalidOperationException("Unable to resolve non-cash SumUp payment type.");
     }
 }
