@@ -38,21 +38,46 @@ public class SumUpApiClient(
         return items;
     }
 
+    /// <summary>Maximum allowed size for a downloaded receipt PDF (10 MB).</summary>
+    public const long MaxReceiptPdfSizeBytes = 10 * 1024 * 1024;
+
     /// <inheritdoc />
     public async Task<byte[]> DownloadReceiptPdfAsync(
         string transactionId,
         CancellationToken cancellationToken = default)
     {
+        if (!Guid.TryParse(transactionId, out _))
+        {
+            throw new ArgumentException(
+                $"Transaction ID '{transactionId}' is not a valid GUID and cannot be used in a receipt URL.",
+                nameof(transactionId));
+        }
+
         var client = httpClientFactory.CreateClient(ReceiptHttpClientName);
 
-        var url = $"pos/public/v1/{_settings.SumUpAccountId}/receipt/{transactionId}?format=pdf";
+        var url = $"pos/public/v1/{Uri.EscapeDataString(_settings.SumUpAccountId)}/receipt/{Uri.EscapeDataString(transactionId)}?format=pdf";
 
         logger.LogDebug("Downloading receipt PDF for transaction {TransactionId}", transactionId);
 
         var response = await client.GetAsync(url, cancellationToken);
         response.EnsureSuccessStatusCode();
 
+        var contentLength = response.Content.Headers.ContentLength;
+        if (contentLength.HasValue && contentLength.Value > MaxReceiptPdfSizeBytes)
+        {
+            throw new InvalidOperationException(
+                $"Receipt PDF for transaction {transactionId} exceeds maximum allowed size " +
+                $"({contentLength.Value} bytes > {MaxReceiptPdfSizeBytes} bytes).");
+        }
+
         var pdfBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+
+        if (pdfBytes.Length > MaxReceiptPdfSizeBytes)
+        {
+            throw new InvalidOperationException(
+                $"Receipt PDF for transaction {transactionId} exceeds maximum allowed size " +
+                $"({pdfBytes.Length} bytes > {MaxReceiptPdfSizeBytes} bytes).");
+        }
 
         logger.LogInformation("Downloaded receipt PDF for transaction {TransactionId} ({Bytes} bytes)",
             transactionId, pdfBytes.Length);

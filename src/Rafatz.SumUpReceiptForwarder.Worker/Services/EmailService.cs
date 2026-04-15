@@ -32,14 +32,20 @@ public class EmailService(
 
         using var client = new SmtpClient();
 
-        var secureSocketOptions = _settings.SmtpUseTls
-            ? SecureSocketOptions.StartTls
-            : SecureSocketOptions.None;
+        if (!_settings.SmtpUseTls)
+        {
+            logger.LogError(
+                "SMTP TLS is disabled. Refusing to send email to protect credentials and content from plaintext transmission to {Host}:{Port}",
+                _settings.SmtpHost, _settings.SmtpPort);
+            throw new InvalidOperationException(
+                $"SMTP TLS is required but disabled for {_settings.SmtpHost}:{_settings.SmtpPort}. " +
+                "Set SMTP_USE_TLS=true to enable secure transmission.");
+        }
 
         logger.LogDebug("Connecting to SMTP server {Host}:{Port} (TLS: {UseTls})",
             _settings.SmtpHost, _settings.SmtpPort, _settings.SmtpUseTls);
 
-        await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, secureSocketOptions, cancellationToken);
+        await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.StartTls, cancellationToken);
         await client.AuthenticateAsync(_settings.SmtpUsername, _settings.SmtpPassword, cancellationToken);
         await client.SendAsync(message, cancellationToken);
         await client.DisconnectAsync(quit: true, cancellationToken);
