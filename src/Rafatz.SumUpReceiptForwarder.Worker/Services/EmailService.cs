@@ -36,6 +36,13 @@ public class EmailService(
             ? SecureSocketOptions.StartTls
             : SecureSocketOptions.None;
 
+        if (!_settings.SmtpUseTls)
+        {
+            logger.LogWarning(
+                "SMTP TLS is disabled. Credentials and email content will be transmitted in plaintext to {Host}:{Port}",
+                _settings.SmtpHost, _settings.SmtpPort);
+        }
+
         logger.LogDebug("Connecting to SMTP server {Host}:{Port} (TLS: {UseTls})",
             _settings.SmtpHost, _settings.SmtpPort, _settings.SmtpUseTls);
 
