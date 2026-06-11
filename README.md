@@ -25,7 +25,7 @@ services:
     image: ghcr.io/mstroppel/sumup-receipt-forwarder:latest
     restart: unless-stopped
     environment:
-      - WORKER_DELAY=3600
+      - WORKER_DELAY=15
       - SUMUP_ACCOUNT_ID=your-account-id
       - SUMUP_API_KEY=your-api-key
       - SMTP_HOST=smtp.example.com
@@ -62,7 +62,7 @@ Parameters:
 ## Env File
 
 ```dotenv
-WORKER_DELAY=3600
+WORKER_DELAY=15
 SUMUP_ACCOUNT_ID=your-account-id
 SUMUP_API_KEY=your-api-key
 SMTP_HOST=smtp.example.com
