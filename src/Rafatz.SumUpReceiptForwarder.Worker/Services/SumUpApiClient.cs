@@ -24,11 +24,14 @@ public class SumUpApiClient(
             limit, oldestTime);
 
         var response = await sumUpClient.Transactions.ListAsync(
-            merchantCode: _settings.SumUpAccountId,
-            statuses: ["SUCCESSFUL"],
-            oldestTime: oldestTime,
-            limit: limit,
-            order: "descending",
+            _settings.SumUpAccountId,
+            new TransactionsListOptions
+            {
+                Statuses = ["SUCCESSFUL"],
+                OldestTime = oldestTime,
+                Limit = limit,
+                Order = "descending"
+            },
             cancellationToken: cancellationToken);
 
         var items = response.Data?.Items?.ToList() ?? [];
