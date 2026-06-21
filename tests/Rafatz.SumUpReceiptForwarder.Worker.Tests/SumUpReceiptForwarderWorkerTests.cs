@@ -65,8 +65,8 @@ public class SumUpReceiptForwarderWorkerTests
         // Arrange
         var transactions = new List<TransactionHistory>
         {
-            new() { Id = "id-1", TransactionId = "tid-1", TransactionCode = "TX001", Amount = 10.50f, Currency = Currency.Eur, Status = "SUCCESSFUL" },
-            new() { Id = "id-2", TransactionId = "tid-2", TransactionCode = "TX002", Amount = 25.00f, Currency = Currency.Eur, Status = "SUCCESSFUL" },
+            new() { Id = "id-1", TransactionId = "tid-1", TransactionCode = "TX001", Amount = 10.50f, Currency = Currency.Eur, Status = TransactionStatus.Successful },
+            new() { Id = "id-2", TransactionId = "tid-2", TransactionCode = "TX002", Amount = 25.00f, Currency = Currency.Eur, Status = TransactionStatus.Successful },
         };
 
         _apiClientMock
@@ -107,8 +107,8 @@ public class SumUpReceiptForwarderWorkerTests
         // Arrange
         var transactions = new List<TransactionHistory>
         {
-            new() { Id = "id-1", TransactionId = "tid-1", TransactionCode = "TX001", Amount = 10.50f, Currency = Currency.Eur, Status = "SUCCESSFUL" },
-            new() { Id = "id-2", TransactionId = "tid-2", TransactionCode = "TX002", Amount = 25.00f, Currency = Currency.Eur, Status = "SUCCESSFUL" },
+            new() { Id = "id-1", TransactionId = "tid-1", TransactionCode = "TX001", Amount = 10.50f, Currency = Currency.Eur, Status = TransactionStatus.Successful },
+            new() { Id = "id-2", TransactionId = "tid-2", TransactionCode = "TX002", Amount = 25.00f, Currency = Currency.Eur, Status = TransactionStatus.Successful },
         };
 
         _apiClientMock
